@@ -12,9 +12,15 @@ Date:   13th November 2018
 #include <WiFiManager.h>
 #include <PubSubClient.h>
 #include <UbidotsESPMQTT.h>
+#include <easyNTPClient.h>
+#include <WiFiUdp.h>
+
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
+WiFiUDP udp;
+
+EasyNTPClient ntpClient(udp, "0.uk.pool.ntp.org")
 
 //set up for Ubidots
 char *TOKEN = "A1E-AJ77mQYlznENTs3ZUuKFF3q4wddaqo";
@@ -67,7 +73,10 @@ void setup(){
     // Connect to wifi
 	// WiFiManager wifiManager;
 	// wifiManager.autoConnect("PeopleCounter");
-    Serial.println("Starting.....");
+    Serial.println("Getting time.....");
+    unixTime = ntpClient.getUnixTime();
+    Serial.print("Time: \t");
+    Serial.println(unixTime);
     mqttClient.setServer(mqtt_server, 1883);
     ubidotsClient.setDebug(false); // Pass a true or false bool value to activate debug messages
     ubidotsClient.wifiConnection(WIFINAME, WIFIPASS);
