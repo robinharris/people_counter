@@ -12,7 +12,6 @@ Date:   13th November 2018
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 #include <PubSubClient.h>
-#include <UbidotsESPMQTT.h>
 #include <Ticker.h>
 #include <NTPtimeESP.h>
 
@@ -27,16 +26,11 @@ char *password = "E0E3106433F4";  // Set your WiFi password
 // char *ssid      = "C4Di_Members";        // Set your WiFi SSID
 // char *password  = "c4d1day0ne";          // Set your WiFi password
 
-//set up for Ubidots
-char *TOKEN = "A1E-AJ77mQYlznENTs3ZUuKFF3q4wddaqo";
-// const char *password = "";//ignored by Ubidots
-Ubidots ubidotsClient(TOKEN, "g4giy");
-
 // #define WIFINAME "workshop"
 // #define WIFIPASS "workshop"
 
-#define pirPin 5  //pin used to monitor PIR GPIO5 == D1
-#define ledPin 14 //used to show when the PIR is active GPIO14 == D5
+#define pirPin 2  //pin used to monitor PIR GPIO2 == D4
+#define ledPin 13 //used to show when the PIR is active GPIO14 == D7
 //global variables
 const char *mqtt_server = "mqtt.connectedhumber.org";
 const char *mqtt_user = "connectedhumber";
@@ -87,12 +81,6 @@ void sendBucket()
   sprintf(mqttBucketString, "%4d-%2d-%2d %02d:%02d:%02d,%3d", year, month, day, hour, minute, second, count);
   mqttClient.publish("pir", mqttBucketString);
   sentBucket = true;
-  if (!ubidotsClient.connected())
-  {
-    ubidotsClient.reconnect();
-  }
-  ubidotsClient.add("count", count);
-  ubidotsClient.ubidotsPublish("my-new-device");
   count = 0;
 } // end sendBucket
 
@@ -134,9 +122,6 @@ void setup()
   NTPuk.setSendInterval(60);
   tick.attach(1, timer); // calls timer every second
   mqttClient.setServer(mqtt_server, 1883);
-  ubidotsClient.setDebug(false); // Pass a true or false bool value to activate debug messages
-  ubidotsClient.wifiConnection(ssid, password);
-  ubidotsClient.begin(callback);
 }
 
 void loop()
