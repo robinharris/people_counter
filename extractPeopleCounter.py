@@ -22,6 +22,7 @@ import mysql.connector
 import logging
 from datetime import datetime, timedelta
 import csv
+import os
 
 dbHost = 'localhost'
 dbUser = 'robinusr'
@@ -52,9 +53,20 @@ try:
         passwd = dbPassword,
         database = database
     )
-    logging.info('Opened a database connection')
+    logging.info("Opened a database connection")
 except Exception as e:
     logging.exception("Unable to open a database connection")
+
+try:
+    if os.path.exists("pc1.csv"):
+        os.remove("pc1.csv")
+    if os.path.exists("pc2.csv"):
+        os.remove("pc2.csv")
+    logging.info("Old files removed OK")
+except Exception as e:
+    print(e)
+    logging.info("Error removing old files")
+
 
 sql = "SELECT dateTime, count FROM pCounter WHERE device = %s AND dateTime > %s AND dateTime < %s ;"
 try:
